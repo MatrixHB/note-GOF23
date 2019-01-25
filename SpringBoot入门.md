@@ -1,6 +1,6 @@
 ****
 
-### springMVC基本知识
+### 一、springMVC基本知识
 
 1. spring在ssm框架中的作用是一个bean工厂，用来管理bean的生命周期
 2. spring的核心：IOC/DI（控制反转/依赖注入）：把dao依赖注入到service层，把service层依赖注入到controller层，把controller层反转给action层，spring顶层容器为BeanFactory
@@ -14,7 +14,7 @@
 
 
 
-### **SpringBoot自动配置**
+### **二、SpringBoot自动配置** 
 
 @**SpringBootApplication** 组合注解：
 
@@ -103,7 +103,7 @@ public class HttpEncodingProperties {
 
 
 
-### **配置文件**
+### **三、配置文件** 
 
 将配置文件（application.yml 或 application.properties）中配置的每一个属性值，映射到组件中
 
@@ -172,7 +172,7 @@ java -jar XXX.jar  --spring.config.location=E:/work/application.properties
 
 运维比较有用，从外部加载，不用修改别的文件
 
-### springBoot配置精髓
+#### springBoot配置精髓
 
 结合上面HttpEncodingAutoConfiguration的例子总结如下：
 
@@ -188,7 +188,7 @@ java -jar XXX.jar  --spring.config.location=E:/work/application.properties
 
 
 
-### 日志
+### 四、日志
 
 spring框架默认选择**JCL**作为日志门面
 
@@ -215,7 +215,7 @@ springBoot能自动适配所有日志，我们在引入其他框架的时候，�
 
 
 
-### web开发
+#### 五、web开发
 
 #### **使用流程** 
 
@@ -613,7 +613,7 @@ public Map<String, Object> getErrorAttributes(RequestAttributes requestAttribute
 
 
 
-#### 嵌入式Servlet容器
+#### 六、嵌入式Servlet容器
 
 SpringBoot默认使用Tomcat作为嵌入式的Servlet容器 
 
@@ -732,7 +732,7 @@ SpringBoot帮我们自动配置SpringMVC的时候，自动注册SpringMVC的前�
 
 
 
-### Docker
+### 七、Docker
 
 Docker是一个开源的应用容器引擎
 
@@ -815,7 +815,7 @@ docker容器（Container）：镜像启动后的实例，是独立运行的一�
 
 
 
-### JDBC
+### 八、JDBC
 
 #### 1、DataSource配置
 
@@ -1091,7 +1091,7 @@ public class UserController {
 
 
 
-### springBoot启动原理
+### 九、springBoot启动原理
 
 #### 回调机制
 
@@ -1214,7 +1214,7 @@ demo.listener.HelloSpringApplicationRunListener
 
 
 
-### 自定义starts
+### 十、自定义starts
 
 start：场景启动器
 
@@ -1315,3 +1315,70 @@ org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 5. 先将autoconfigurer模块打包到maven仓库，再将stater模块打包到maven仓库（maven Projects --> lifecycle --> install）
 6. 新建project，spring initializer，且为web应用，maven中添加对starter的依赖，编写controller可以实现对helloService的调用
 7. 在该project的application.properties中可以修改对helloProperties的配置
+
+
+
+#### 十一、Swagger
+
+提供RESTful API的可视化，方便API的描述与测试
+
+```xml
+    <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger2</artifactId>
+        <version>${swagger.version}</version>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-swagger-ui</artifactId>
+        <version>${swagger.version}</version>
+    </dependency>
+<!--第一个是获取API的包，第二个是官方给出的UI界面-->
+```
+
+配置类
+
+```java
+@Configuration
+@EnableSwagger2
+@ConditionalOnExpression("'${swagger.enable}'=='true'")
+public class SwaggerConfig {
+
+    @Bean
+    public Docket createRestApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+            .apiInfo(apiInfo())
+            .select()
+            //扫描API所在的包
+            .apis(RequestHandlerSelectors.basePackage("demo.controller"))
+            .paths(PathSelectors.any())
+            .build();
+    }
+
+    private ApiInfo apiInfo() {
+        return new ApiInfoBuilder()
+            .title("My API Lib")
+            .description("this is ...")
+            .termsOfServiceUrl("http://...")
+            .contact("yibinhaha")
+            .version("1.0")
+            .build();
+    }
+}
+```
+
+在API上声明
+
+```java
+@ApiOperation(value="服务端发送消息")
+@RequestMapping(value = "sendMsg", method = RequestMethod.POST)
+@ResponseBody
+public void sendMsg(@RequestBody SendMsgReqVO sendMsgReqVO){
+}
+```
+
+也可以直接在controller类上标记`@Api(value="/api", description="服务端发送消息")`
+
+配置文件中的swagger.enabled属性设为true，打开localhost:8081/swagger-ui.html即可使用swagger
+

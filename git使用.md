@@ -12,13 +12,9 @@
 
 #### 在文件夹上传代码到github
 
-1、打开git bash -->  输入命令`git init` （创建一个本地仓库，会出现.git文件，并有一个master分支）
-
-2、写好文件之后，`git add --all`  -->   `git commit -m 'change something'`（在本地提交修改）
-
-3、需要建立和github的SSH连接，输入命令`ssh-keygen -t rsa`（在/c/users/xxx/.ssh/文件夹中出现一个公钥文件和一个私钥文件），将公钥加入github --> settings --> SSH and GPG keys
-
-4、`git remote add origin git@github.com:MatrixHB/test.git` 添加远程仓库origin
-
-5、`git push origin master`，推送代码到github仓库
+1. 打开git bash -->  输入命令`git init` （创建一个本地仓库，会出现.git文件，并有一个master分支）
+2. 写好文件之后，`git add --all`  -->   `git commit -m 'change something'`（在本地提交修改）
+3. 需要建立和github的SSH连接，输入命令`ssh-keygen -t rsa`（在/c/users/xxx/.ssh/文件夹中出现一个公钥文件和一个私钥文件），将公钥加入github --> settings --> SSH and GPG keys
+4. `git remote add origin git@github.com:MatrixHB/test.git` 添加远程仓库origin
+5. `git push origin master`，推送代码到github仓库
 

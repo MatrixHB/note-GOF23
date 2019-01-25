@@ -153,6 +153,8 @@ bootstrap.group(group).channel(NioSocketChannel.class)
 
 cim-forward-route做的几件事：用户注册、用户登录、服务的发现与更新、负载均衡、与Redis的交互（redisTemplate，包括注册登录时的保存和下线时的清除）
 
+client到route、route到server的通信基于http（rest controller），server到client的通信基于Netty（Client要发送一个聊天信息，会先经过路由查询接收者所在的Server实例，调用该实例的API去发送消息）
+
 ##### 一、依赖版本号的统一管理
 
 在cim-server、cim-client、cim-forward-route等多个模块pom中添加此上层依赖
