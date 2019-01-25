@@ -454,3 +454,10 @@ public enum StatusEnum {
 
 3、在Redis中保存用户账号、用户路由、已登录用户信息等，前两个均用K-V结构保存，但key以前缀区分（account_prefix、route_prefix），已登录用户信息用set结构保存，达到去重作用
 
+4、如果是用docker启动的zookeeper，可以用docker命令查看ZK上服务节点的增删
+
+```shell
+~$ docker exec -it [containerId] zkCli.sh
+```
+
+通过`ls`命令可以查看根节点下的服务节点列表

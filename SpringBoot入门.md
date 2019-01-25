@@ -793,8 +793,10 @@ docker容器（Container）：镜像启动后的实例，是独立运行的一�
 5. 运行镜像，生成容器（相当于运行set-up.exe，安装软件）
     --name 自定义容器名   -d 后台运行
     # docker run --name mysql001 -d mysql -e MYSQL_ROOT_PASSWORD=123456 
-6. 查看哪些容器正在运行
-	# docker ps
+6. 查看运行中容器
+	# docker ps      
+   查看所有容器，包括退出运行的
+    # docker ps -a
 7. 停止运行中的容器
 	# docker stop containerId
 8. 启动容器（相当于运行软件的.exe）
