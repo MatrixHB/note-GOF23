@@ -60,9 +60,9 @@
    - 4字节： int , float
    - 8字节： long , double
 
-4. char和double的字节，以及在内存的分布是怎样
+   char和double的字节，以及在内存的分布是怎样
 
-5. 抽象方法与抽象类
+4. 抽象方法与抽象类
 
    - 抽象方法
      - 没有方法体的方法，必须使用关键字abstract修饰
@@ -72,19 +72,19 @@
      - 不能直接实例化，需要依靠子类采用向上转型的方式处理
      - 必须有子类
      - 若子类不是抽象类，则必须覆写抽象类中所有的抽象方法，否则子类仍然需要定义为一个抽象类
-     - 抽象类中一定存在构造方法，其存在目的是为了属性的初始化。 并且子类对象实例化的时候，依然满足先执行父类构造，再执行子类构造的顺序
+     - 抽象类中一定存在构造方法，其存在目的是为了属性的初始化。并且子类对象实例化的时候，依然满足先执行父类构造，再执行子类构造的顺序
      - 抽象类不能用final修饰，因为final修饰类表明该类不能有子类，与抽象类相矛盾
      - 抽象类可以没有抽象方法，目的是不希望这个类被实例化。这种形式在Spring源码中实现单例模式就用到了
 
-6. static关键字与抽象
+5. static关键字与抽象
 
    - 抽象方法不能用static修饰
-     - 抽象方法就是为了重写，而静态方法不可以被重写
+     - 抽象方法就是为了重写，**而静态方法不可以被重写**
    - 抽象类某些情况下可以用static修饰
      - 外部抽象类不允许使用static声明
      - 内部的抽象类允许使用static声明，使用static声明的内部抽象类相当于一个外部抽象类，继承的时候使用“外部类.内部类”的形式表示类名称
 
-7. 接口及其与抽象类的区别
+6. 接口及其与抽象类的区别
 
    - 接口：行为的抽象
    - 与抽象类的区别
@@ -96,13 +96,13 @@
      6. 从抽象层面上来看，抽象类是对一系列类的抽象，包括属性、行为，但是接口仅仅是对一系列行为的抽象
      7. 从设计层面上来看，抽象类对应模版设计模式。接口定义的是行为规范，其对应辐射式设计模式
 
-8. 单继承
+7. 单继承
 
    - 定义：一个子类只能有一个直接父类
    - 原因：若支持多继承，当多个父类中含有相同成员变量/方法时，会产生调用的不确定性
    - 接口支持多继承，这是因为接口中仅定义了行为，而没有具体的实现
 
-9. 重写和重载区别
+8. 重写和重载区别
 
    - 重载（Over loading）
      - 在类中可以创建多个同名方法，具有不同的参数和不同的定义，调用时，通过参数个数与参数类型决定具体执行的方法
@@ -115,9 +115,9 @@
      - 父类的异常宽泛性必须比子类的广
      - 提现了父类与子类之间的多态性
 
-10. 多态
+9. 多态
 
-11. 成员变量与局部变量的区别
+10. 成员变量与局部变量的区别
 
     - 成员变量：类范围内定义的变量
 
@@ -143,7 +143,7 @@
 
         从定义这个变量开始到代码块结束这一段时间内有效
 
-12. static关键字与final关键字
+11. static关键字与final关键字
 
     - static：方便在没有创建对象的情况下来进行调用（方法/变量）
 
@@ -176,7 +176,7 @@
 
       3. 修饰类，表示该类不能被继承
 
-13. 类访问权限
+12. 类访问权限
 
     |           | 同一个类 | 同一个包 | 不同包的子类 | 不同包的非子类 |
     | :-------: | :------: | :------: | :----------: | :------------: |
@@ -185,16 +185,19 @@
     | protected |   true   |   true   |     true     |                |
     |  public   |   true   |   true   |     true     |      true      |
 
-14. 反射用到了哪些接口，哪些类? 
+13. 反射用到了哪些接口，哪些类? 
 
-15. 反射机制中可以获取private成员的值吗 
+14. 反射机制中可以获取private成员的值吗 
 
     可以，但要执行setAccessible()方法
 
-    例如：
-
     ```java
-    
+    try{
+        Class<?> clazz = Class.forName("cn.reflect.Data");
+        Field filed = clazz.getDeclaredFiled("name");
+        field.setAccessible(true);
+    }catch(Exception e){
+    }
     ```
 
     
@@ -892,7 +895,7 @@
              }
               
              public synchronized void method2() {
-                  
+                  ...
              }
          }
          ```
@@ -1194,211 +1197,6 @@
     - @Repository
 
 14. 你是怎么理解spring的，ssh框架呢？
-
-#### 设计模式
-
-1. 生产者消费者模式
-
-   生产者消费者模型具体来讲，就是在一个系统中，存在生产者和消费者两种角色，他们通过内存缓冲区进行通信，生产者生产消费者需要的资料，消费者把资料做成产品
-
-   在这个模型中，最关键就是内存缓冲区为空的时候消费者必须等待，而内存缓冲区满的时候，生产者必须等待。其他时候可以是个动态平衡。值得注意的是多线程对临界区资源的操作时候必须保证在读写中只能存在一个线程，所以需要设计锁的策略
-
-   生产者生产数据到缓冲区中，消费者从缓冲区中取数据
-
-   如果缓冲区已经满了，则生产者线程阻塞
-
-   如果缓冲区为空，那么消费者线程阻塞
-
-2. 手写一下观察者模式
-
-   在对象之间定义了一对多的依赖，这样一来，当一个对象改变状态，依赖它的对象会收到通知并自动更新
-
-   其实就是发布订阅模式，发布者发布信息，订阅者获取信息，订阅了就能收到信息，没订阅就收不到信息
-
-   定义抽象被观察者接口：
-
-   ```java
-   /*** 声明了添加、删除、通知观察者方法*/
-   public interface Observerable {    
-       public void registerObserver(Observer o);
-       public void removeObserver(Observer o);
-       public void notifyObserver();    
-   }
-   ```
-
-   定义抽象观察者接口：
-
-   ```java
-   
-   ```
-
-   定义被观察者的类：
-
-   ```Java
-   import java.util.*;
-   
-   /*** 被观察者，也就是微信公众号服务
-    * 实现了Observerable接口，对Observerable接口的三个方法进行了具体实现
-    */
-   public class WechatServer implements Observerable {    
-       //注意到这个List集合的泛型参数为Observer接口，设计原则：面向接口编程而不是面向实现编程
-       private List<Observer> list;
-       private String message;
-       
-       public WechatServer() {
-           list = new ArrayList<Observer>();
-       }
-       
-       @Override
-       public void registerObserver(Observer o) {        
-           list.add(o);
-       }
-       
-       @Override
-       public void removeObserver(Observer o) {
-           if(!list.isEmpty())
-               list.remove(o);
-       }
-   
-       //遍历
-       @Override
-       public void notifyObserver() {
-           for(int i = 0; i < list.size(); i++) {
-               Observer os = list.get(i);
-               os.update(message);
-           }
-       }
-       
-       public void setInfomation(String s) {
-           this.message = s;
-           System.out.println("微信服务更新消息： " + s);
-           //消息更新，通知所有观察者
-           notifyObserver();
-       }
-   }
-   ```
-
-   定义观察者的类：
-
-   ```Java
-   
-   ```
-
-3. 说一下单例模式的各种写法，手写一种线程安全的
-
-   特点：单例模式确保某个类只有一个实例，而且自行实例化并向整个系统提供这个实例
-
-   - 饿汉式写法
-
-     ```java
-     //饿汉式单例类.在类初始化时，已经自行实例化   
-     public class Singleton1 {  
-         private Singleton1() {}  
-         private static final Singleton1 single = new Singleton1();  
-         //静态工厂方法   
-         public static Singleton1 getInstance() {  
-             return single;  
-         }  
-     }  
-     ```
-
-   - 懒汉式写法
-
-     ```Java
-     //懒汉式单例类.在第一次调用的时候实例化自己   
-     public class Singleton {  
-         private Singleton() {}  
-         private static Singleton single=null;  
-         //静态工厂方法   
-         public static Singleton getInstance() {  
-              if (single == null) {    
-                  single = new Singleton();  
-              }    
-             return single;  
-         }  
-     }  
-     ```
-
-     这种方法是非线程安全的
-
-     要实现线程安全，可以考虑对getInstance()方法进行同步
-
-     1. 对整个方法进行同步（synchronized）
-
-        ```java
-        public static synchronized Singleton getInstance() {  
-            if (single == null) {    
-                single = new Singleton();  
-            }    
-            return single;  
-        }  
-        ```
-
-     2. 双重检查锁定
-
-        ```java
-        public static Singleton getInstance() {  
-            if (single == null) {
-                //在单例对象未生成时才进行加锁
-                //因为若单例对象已经生成，只需要返回该对象，本身就是线程安全的
-                //对类加锁，因为是静态方法，单例只需要一个锁
-                synchronized(Singleton.class){
-                    if(single == null){
-                        single = new Singleton();
-                    }
-                }
-            }    
-            return single;  
-        }
-        ```
-
-     3. 静态内部类
-
-        ```java
-        //利用了classloader的机制来保证初始化instance时只有一个线程
-        //线程安全的，同时没有性能损耗
-        public class Singleton {
-            //利用静态内部类进行单例
-            private static class LazyHolder {    
-               private static final Singleton INSTANCE = new Singleton();    
-            }    
-            private Singleton (){}    
-            public static final Singleton getInstance() {    
-                //用到静态内部类，会对其进行类加载
-                //在类加载期间，INSTANCE属性作为静态属性会被创建
-                //用于类加载只会执行一次，因此必然是单例的
-               return LazyHolder.INSTANCE;    
-            }    
-        }
-        ```
-
-   - 两种写法的区别
-
-     1. 线程安全
-
-        饿汉式天生就是线程安全的，可以直接用于多线程而不会出现问题
-
-        懒汉式本身是非线程安全的（多线程并发时，可能造成对象并非单例），但是可以手动进行同步
-
-     2. 资源加载与性能
-
-        饿汉式在类创建的同时就实例化一个静态对象出来，不管之后会不会使用这个单例，都会占据一定的内存，但是相应的，在第一次调用时速度也会更快，因为其资源已经初始化完成
-
-        懒汉式顾名思义，会延迟加载，在第一次使用该单例的时候才会实例化对象出来，第一次调用时要做初始化，如果要做的工作比较多，性能上会有些延迟，之后就和饿汉式一样了
-
-4. 工厂模式
-
-   创建型设计模式，需要生成的对象叫做产品 ，生成对象的地方叫做工厂 
-
-5. 生产者消费者模式解决，采用乐观锁
-
-6. ​
-
-7. 设计模式（工厂模式、策略模式、单例模式、装饰模式比较常见）
-
-8. 单例模式、工厂模式、观察者模式、适配器模式、模仿方法模式、策略模式、责任链模式、装饰者模式
-
-9. 单例、工厂、观察者重点
 
 #### 分布式
 

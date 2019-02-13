@@ -1214,9 +1214,9 @@ demo.listener.HelloSpringApplicationRunListener
 
 
 
-### 十、自定义starts
+### 十、自定义starters
 
-start：场景启动器
+starter：场景启动器
 
 1. 场景需要使用什么依赖？
 2. 如何编写自动配置（xxxAutoConfiguration类）
