@@ -49,6 +49,7 @@
 3、在ConcurrentMapCacheManager可以创建和获取ConcurrentMapCache，作用是将数据保存在ConcurrentMap中
 
 ```java
+//ConcurrentMapCacheManager类中
 public Cache getCache(String name) {
         Cache cache = (Cache)this.cacheMap.get(name);    //每个Cache都有一个对应的名字
         if (cache == null && this.dynamic) {
@@ -64,7 +65,7 @@ public Cache getCache(String name) {
 }
 ```
 
-**运行流程**：
+**运行流程**：（其实是通过AOP在执行方法之前做一些操作）
 
 1、方法运行之前，使用CacheManager按照cacheName或value所指定的名字获取Cache，第一次获取如果不存在相应cache会自己创建
 
@@ -187,7 +188,7 @@ public class MyRedisConfig {
 
 #### 4、Redis作为缓存
 
-引入redis的starter后，容器中默认生效的是**RedisCacheManager**，原来默认的SimpleCacheManager不生效
+**引入redis的starter后，容器中默认生效的是RedisCacheManager，原来默认的SimpleCacheManager不生效**（为什么呢？因为在SimpleCacheConfiguration中注解了`@ConditionalOnMissingBean({CacheManager.class})`，表示没有其他CacheManager组件此配置才会生效）
 
 RedisCacheManager为我们创建**RedisCache**作为缓存组件，RedisCache通过操作Redis来缓存数据
 
@@ -218,6 +219,31 @@ public RedisCacheManager redisCacheManager(RedisConnectionFactory redisConnectio
         //用builer.build的方式创建RedisCacheManager
         RedisCacheManager cacheManager = RedisCacheManager.builder(redisConnectionFactory).cacheDefaults(config).build();
         return cacheManager;
+}
+```
+
+#### 5、同时引入多个CacheManager
+
+如果希望在引入RedisCacheManager的同时，部分方法使用其他CacheManager，可以在CacheConfig配置文件中加入其他CacheManager组件，但是必须在某一个CacheManager上标注**@Primary**，表示默认使用它
+
+```java
+//配置文件中增加如下代码（仿照simpleCacheConfiguration中的配置）
+    @Bean
+    public ConcurrentMapCacheManager concurrentMapCacheManager() {
+        ConcurrentMapCacheManager cacheManager = new ConcurrentMapCacheManager();
+        List<String> cacheNames = new ArrayList<>();
+        cacheNames.add("bus");                    //这里如果不事先添加CacheNames会报错“找不到”
+        cacheManager.setCacheNames(cacheNames);
+
+        return cacheManager;
+    }
+```
+
+想要不使用默认的CacheManager，可以在@Cacheable注解中指定
+
+```java
+@Cacheable(value="bus", keyGenerator = "#a0", cacheManager = "concurrentMapCacheManager")
+public BusData queryBusData(Integer id) throws Exception{
 }
 ```
 

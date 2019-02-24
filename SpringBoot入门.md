@@ -3,14 +3,110 @@
 ### 一、springMVC基本知识
 
 1. spring在ssm框架中的作用是一个bean工厂，用来管理bean的生命周期
-2. spring的核心：IOC/DI（控制反转/依赖注入）：把dao依赖注入到service层，把service层依赖注入到controller层，把controller层反转给action层，spring顶层容器为BeanFactory
+
+2. spring的核心：**IOC/DI**（控制反转/依赖注入）：把dao依赖注入到service层，把service层依赖注入到controller层，把controller层反转给action层，spring顶层容器为BeanFactory
+
 3. IOC的作用：解决对象之间的依赖问题，把所有对象的依赖关系通过配置文件或注解的方式关联起来，降低了耦合度
-4. spring主要用到的设计模式：1）工厂模式：每个bean通过方法创建；2）单例模式：默认每个bean堆地作用域都是 singleton；3）代理模式：aop通过动态代理实现
-5. springMVC中的controller是单例模式，在多线程访问时有线程安全问题，因此：为保证效率不要用同步，在控制中不要写属性
-6. @RequestMapping用来映射一个url到一个特定的处理方法上，请求参数传递到方法形参中（例如一个对象，例如@PathVariable），建议单例（struts2则是一个url对应一个类，传递参数到类的属性，因此只能设置为多例）
-7. springMVC通过参数解析器将request请求内容解析，给方法形参赋值，将处理之后的数据和视图封装为ModelAndView，其中的模型数据通过request域传输到页面
-8. springMVC中的转发和重定向，转发：return "hello"；重定向：return "redirect:/hello"
-9. springMVC的步骤：用户请求先到DispatcherServlet，在HandlerMapping中查询请求对应的控制器，返回控制器对象，在HandlerAdapter中执行控制器的处理逻辑，返回ModelAndView，再到ViewResolver中解析视图，返回View对象，渲染视图后响应用户
+
+4. spring主要用到的设计模式：1）工厂模式：每个bean通过方法创建；2）单例模式：默认每个bean堆的作用域都是 singleton；3）代理模式：aop通过动态代理实现
+
+5. springMVC中的controller是单例模式，在多线程访问时有线程安全问题，因此：为保证效率不要用同步，在控制中尽量不要写实例变量（如果需要写成ThreadLocal形式，实际上Spring框架中的有状态bean都是写成threadLocal形式，例如Mybatis的session）
+
+6. **@RequestMapping**用来映射一个url到一个特定的处理方法上，请求参数传递到方法形参中（例如一个对象，例如@PathVariable），建议单例（struts2则是一个url对应一个类，拦截的是类，拦截后创建一个新的对象并传递参数到对象的属性，因此是多例）
+
+7. springMVC通过参数解析器将request请求内容解析，给方法形参赋值，将处理之后的数据和视图封装为**ModelAndView**，其中的模型数据（多个键值对）通过request域传输到页面，视图层通过`${requestScope.key}`可以取出Model中的数据
+
+8. 如果想要把模型数据放在session域中（多个请求共用），可以在controller类上注解**@SessionAttributes**，例如@SessionAttributes(value={"user"})，则模型数据中key为user的数据会同时放在session域中
+
+9. springMVC中的转发和重定向，转发：`return "hello"`；重定向：`return "redirect:/hello"`；两者的区别在于转发是服务器仅处理一次请求（URL不变），而重定向是服务器处理两次请求，浏览器收到第一次请求的响应后，发出一次新的请求，因此浏览器上的URL会变化（所以，转发的return后面带的是**视图名**，重定向的return后面是 redirect:/ 加上**请求路径** ）
+
+10. springMVC的步骤：用户请求先到DispatcherServlet，在HandlerMapping中查询请求对应的控制器，返回控制器对象，在HandlerAdapter中执行控制器的处理逻辑，返回ModelAndView，再到ViewResolver中解析视图，返回View对象，渲染视图后响应用户
+
+11. **@ModelAttribute** 注解在方法参数上，会将客户端传递过来的参数按名称注入到指定对象中，并且会将这个对象自动加入ModelMap中，便于View层使用；**@ModelAttribute** 注解在controller的方法上，会在每一个@RequestMapping标注的方法前执行，如果有返回值，则自动将该返回值加入到ModelMap中 （可以用来做一些统一的初始化工作，例如，要post（update）一个对象，可以先在@ModelAttribute注解的方法中将这个对象初始化，这样的话post一部分属性就不会出现结果有null属性的情况）
+
+    ```java
+    //在任何@RequestMapping方法之前执行，如果请求参数中有id!=null，则先从数据库中获取该对象放入Map
+    @ModelAttribute
+    public void initUser(@RequestParam(value="id", required=false) Integer id,
+                        Map<String, Object> map) {
+        if (id != null) {
+            User user = new User();       
+            ...    //从数据库中查找对应id的User
+            map.put("user", User);        //放进一个名为implicitModel的map中
+        }
+    }
+    
+    //在入参上注解@ModelAttribute，则去ModelMap中找对应名字的key
+    //没有在入参上注解@ModelAttribute，则去ModelMap中找类名首字母小写的key
+    @PostMapping("/test")
+    public String updateUser(@ModelAttribute("user") User user) {      //传入的POJO可以有null属性
+        return "success";
+    }
+    ```
+
+12. SpringMVC**确定目标方法POJO入参**的过程：
+
+    1、确定一个Key（看入参是否注解了@ModelAttribute，是则看该注解value，否则类名首字母小写）
+
+    2、在implicitModel中查找key对应的对象，若存在，则作为入参传入，否则进入3（若存在，说明在@ModelAttribute注解的方法中提前初始化了该对象）
+
+    3、 检查当前方法是否使用了@SessionAttributes注解，若使用了该注解，且注解的value值包含了该key，则从HttpSession域中获取该key对应的对象，作为入参传入；若Session域中不存在该key，则抛出异常
+
+    4、若当前方法没有使用@SessionAttribute注解，或者该注解的value值没有包含该key，则通过类型反射来创建POJO对象，作为入参传入
+
+    5、springMVC会把key和对应的对象保存到implicitModel中，进而保存到request域中
+
+13. SpringMVC的Handler无论返回String还是其他，都会封装成一个ModelAndView（逻辑视图），并通过ViewResolver解析成物理视图，每一次的request/response都会产生一个新的视图对象（无线程安全问题）
+
+14. **ViewController**可以用来配置直接转发的页面，无需经过Handler
+
+    ````xml
+    <mvc:view-controller path="/success" view-name="login"/>
+    ````
+
+15. 数据绑定流程
+
+    1、springMVC将ServletRequest对象及目标方法的入参实例传递给WebDataBinderFactory，以创建DataBinder实例
+
+    2、DataBinder调用ConversionService组件进行**数据类型转换、数据格式化**等，并将Servlet中的请求信息填到入参对象中
+
+    3、调用Validator组件对已经绑定了请求信息的入参对象进行**数据合法性校验**，并最终生成数据绑定结果BindingData对象，校验错误的对象放在BindingResult中（`bindingResult.getErrorCount() > 0`）
+
+16. 数据格式化：在POJO属性上注解**@DateTimeFormat、@NumberFormat**，在入参绑定或模型输出时按照指定格式
+
+    ```java
+    @DateFormat(pattern="yyyy-MM-dd")
+    private Date birthDate;
+    
+    @NumberFormat(pattern="#,###,###.#")
+    private Float Salary;
+    ```
+
+17. 数据校验，在POJO属性山标注相应注解
+
+    ```java
+    //也可以标注@NotEmpty
+    //@NotBlank和@NotEmpty生效的前提是，入参时带注解@Valid
+    @NotBlank                 
+    private String name;
+    @Email
+    private String email;
+    @Past
+    private Date birthDate;
+    ```
+
+    如果出现校验出错，可以做相应处理
+
+    ```java
+    if (bindingResult.getErrorCount() > 0) {
+        for (FieldError error : bindingResult.getFieldErrors()) {
+            System.out.println(error.getField() + " -- " + error.getDefaultMessage());
+        }
+        return "xxx";  //转发到其他页面
+    }
+    ```
+
+18. 方法上注解了@ResponseBody后，会调用HttpMessageConverter将返回的java对象转化为响应消息（Json格式）
 
 
 
@@ -291,7 +387,9 @@ server.context-path = /demo01             #访问时增加项目名
 
 一、springBoot在自动配置很多MVC组件的时候，会先看用户有没有自己配置的组件（@Bean、@Component），如果有就用用户配置的，如果没有才自动配置；如果有些组件可以有多个（比如ViewResolver），就将用户配置的和默认配置的组合起来；
 
-二、**扩展MVC配置**：如果想要保持springBoot MVC的配置，只添加额外的MVC配置（比如interceptor拦截器、formatteer格式转换器、view controller等），可以编写一个配置类（**@Configuration**），同时要继承**WebMvcConfigurerAdapter**类型，但不能标注**@EnableWebMvc**
+springBoot的默认配置就包含<mvc: annotation-driven/>，不需要再配置
+
+二、**扩展MVC配置**：如果想要保持springBoot MVC的配置，只添加额外的MVC配置（比如interceptor拦截器、formatter格式转换器、view controller等），可以编写一个配置类（**@Configuration**），同时要继承**WebMvcConfigurerAdapter**类型，但**不能标注@EnableWebMvc** 
 
 ```java
 //使用WebMvcConfigurerAdapter来扩展springMVC功能
@@ -304,6 +402,9 @@ public class MyMvcConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/hello").setViewName("success");
     }
 }
+
+//新版的SpringBoot改成了实现接口
+public class MyMvcConfig implements WebMvcConfigurer {
 ```
 
 **扩展配置的原理**（源码分析）：
@@ -352,7 +453,7 @@ public class DelegatingWebMvcConfiguration extends WebMvcConfigurationSupport {
 
 3. 容器中所有的webMvcConfigurer都会起作用，用户自己的配置也会被调用
 
-三、**全面接管springMVC**：如果完全不需要springMVC的自动配置，所有都是用户自己配置，我们需要编写一个配置类（@Configuration），并且标注**@EnableWebMvc**
+三、**全面接管springMVC**：如果完全不需要springMVC的自动配置，所有都是用户自己配置，我们需要编写一个配置类（@Configuration），**并且标注@EnableWebMvc**
 
 ```java
 //全面接管，所有的springMVC相关自动配置都失效了
@@ -978,7 +1079,7 @@ public interface DepartmentMapper {
 
 同时要在SpringBootApplication类上增加注解 **@MapperScan**(value="mapper")
 
-3）在controller中注入mapper
+3）在controller（或Service）中注入mapper
 
 ```java
 @RestController

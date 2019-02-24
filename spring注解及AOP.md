@@ -513,4 +513,6 @@ public class Logger {
 
 或者在配置类上注解@EnableAspectJAutoProxy
 
+**注意:** 环绕通知的方法需要返回目标方法执行之后的结果, 即调用 joinPoint.proceed(); 的返回值, 否则会出现空指针异常！！！
 
+ 
