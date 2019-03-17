@@ -2,7 +2,7 @@
 
 **单个参数**：直接写 #{参数名}
 
-**多个参数：**Mybatis将多个入参封装成一个map，key为param1,param2...paramN，value为对应的值
+**多个参数**：Mybatis将多个入参封装成一个map，key为param1,param2...paramN，value为对应的值
 
 所以取值时应写为 #{key}
 

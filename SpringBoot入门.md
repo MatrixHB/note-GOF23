@@ -82,7 +82,7 @@
     private Float Salary;
     ```
 
-17. 数据校验，在POJO属性山标注相应注解
+17. 数据校验，在POJO属性上标注相应注解，在入参时注解**@Valid** 
 
     ```java
     //也可以标注@NotEmpty
@@ -285,6 +285,20 @@ java -jar XXX.jar  --spring.config.location=E:/work/application.properties
 
 
 ### 四、日志
+
+日志实现：jcl、log4j、logback、log4j2
+
+日志门面：slf4j、commons-logging
+
+**应用中禁止直接使用日志实现的API，而应依赖门面模式的日志框架，有利于维护和各个类的日志处理方式统一** 
+
+````java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+private static final Logger logger = LoggerFactory.getLogger(Abc.class);
+````
+
+slf4j其实只是一个门面服务，真正的日志输出相关的实现还是要依赖于log4j、logback等日志框架的
 
 spring框架默认选择**JCL**作为日志门面
 
